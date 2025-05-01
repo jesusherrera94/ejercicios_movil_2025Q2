@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'square.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Container(),
+      home: Scaffold(
+        appBar: AppBar(title: Text('Counter!'),),
+        body: Center(
+        child: Square(),
+      ),
+      )
     );
   }
 }
