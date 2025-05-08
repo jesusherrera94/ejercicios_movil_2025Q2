@@ -29,6 +29,13 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     });
   }
 
+  Widget? getFoatingActionButton(int index) {
+    if(index == 0) {
+      return FloatingActionButton(onPressed: () {}, child: Icon(Icons.add),);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +44,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         automaticallyImplyLeading: false, // esto para el futuro!
       ),
       body: _screens[_selectedIndex]['screen'],
-      floatingActionButton: FloatingActionButton(onPressed: () {}, child: Icon(Icons.add),),
+      floatingActionButton: getFoatingActionButton(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(items: [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'), // 0
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'), // 1
