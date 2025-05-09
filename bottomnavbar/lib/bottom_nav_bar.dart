@@ -31,7 +31,12 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   Widget? getFoatingActionButton(int index) {
     if(index == 0) {
-      return FloatingActionButton(onPressed: () {}, child: Icon(Icons.add),);
+      return FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: Colors.blueAccent, 
+        shape: CircleBorder(),
+        child: Icon(Icons.add, color: Colors.white,),
+        );
     }
     return null;
   }
