@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/subscription.dart';
+import '../models/subcription.dart';
 
 class SubscriptionItem extends StatelessWidget {
+
   final Subscription subscriptionElement;
+  // prop drilling
   const SubscriptionItem({super.key, required this.subscriptionElement});
 
   @override
@@ -31,4 +33,5 @@ class SubscriptionItem extends StatelessWidget {
       ],
     );
   }
+
 }
