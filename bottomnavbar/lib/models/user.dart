@@ -1,12 +1,12 @@
 class User {
-  String id;
+  String id; // coleccion de firebase
   String username;
   String fullname;
   String email;
   String password;
   String principalInterest;
   String? profilePicture;
-  String? uid;
+  String? uid; // firebase, para el futuro!
 
   User({
     this.id = '',
@@ -16,7 +16,6 @@ class User {
     required this.email,
     required this.password,
     required this.principalInterest,
-    this.uid,
-  }); 
-  
-  }
+    this.uid
+  });
+}
