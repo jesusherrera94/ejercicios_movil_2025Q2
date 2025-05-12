@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Subscription(
       id: '1',
       platformName: 'Netflix',
-      renovationDate: 20240728, 
+      renovationDate: 2148483647, 
       renovationCycle: Period.MONTHLY,
       charge: 12.99,
       userId: 'user123',
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Subscription(
       id: '2',
       platformName: 'Spotify',
-      renovationDate: 20240815,
+      renovationDate: 2147483647,
       renovationCycle: Period.MONTHLY,
       charge: 9.99,
       userId: 'user123',
@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Subscription(
       id: '3',
       platformName: 'Hulu',
-      renovationDate: 20240901,
+      renovationDate: 2147483647,
       renovationCycle: Period.MONTHLY,
       charge: 7.99,
       userId: 'user123',
@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Subscription(
       id: '4',
       platformName: 'Amazon Prime',
-      renovationDate: 20250101,
+      renovationDate: 2147483647,
       renovationCycle: Period.YEARLY,
       charge: 119.00,
       userId: 'user123',
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Subscription(
       id: '5',
       platformName: 'YouTube Premium',
-      renovationDate: 20241020,
+      renovationDate: 2047483635,
       renovationCycle: Period.MONTHLY,
       charge: 11.99,
       userId: 'user123',
@@ -64,9 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: _renderItems(),
+    return Expanded(
+      child:ListView(
+        children: _renderItems(),
+      )
     );
   }
 }
