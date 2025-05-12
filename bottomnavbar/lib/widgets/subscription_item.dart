@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/subcription.dart';
+import '../models/subscription.dart';
 
 class SubscriptionItem extends StatelessWidget {
 
