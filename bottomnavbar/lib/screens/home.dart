@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       userId: 'user123',
     ),
   ];
+  Period? _selectedFilter;
 
   List<Widget> _renderItems() {
   List<Widget> subscriptionWidget = [];
@@ -64,10 +65,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(onPressed: () {
+                
+              },
+              style: ElevatedButton.styleFrom(
+                      backgroundColor: _selectedFilter == Period.DAILY
+                          ? Colors.blueAccent 
+                          : Colors.grey,
+                    ), 
+              child: const Text("Daily"),
+              
+              ),
+              ElevatedButton(onPressed: () {
+               
+              }, 
+              style: ElevatedButton.styleFrom(
+                      backgroundColor: _selectedFilter == Period.DAILY
+                          ? Colors.blueAccent
+                          : Colors.grey,
+                    ), 
+              child: const Text("Monthly")),
+              ElevatedButton(onPressed: () {
+               
+              }, 
+              style: ElevatedButton.styleFrom(
+                      backgroundColor: _selectedFilter == Period.DAILY
+                          ? Colors.blueAccent
+                          : Colors.grey,
+                    ), 
+              child: const Text("Yearly")),
+            ],
+        ),
+        Expanded(
       child:ListView(
         children: _renderItems(),
       )
+    )
+      ],
     );
   }
 }
