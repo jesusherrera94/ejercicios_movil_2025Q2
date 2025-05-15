@@ -1,37 +1,52 @@
 import 'package:flutter/material.dart';
 import '../models/subscription.dart';
+import '../utils/time_utils.dart';
 
 class SubscriptionItem extends StatelessWidget {
-
   final Subscription subscriptionElement;
   // prop drilling
   const SubscriptionItem({super.key, required this.subscriptionElement});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Column(
+    return Card(
+      child: ListTile(
+        leading: Icon(subscriptionElement.icon),
+        title: Row(
           children: [
-            Text(subscriptionElement.id),
-            Text(subscriptionElement.platformName)
+            Text(subscriptionElement.platformName),
+            SizedBox(width: 5),
+            Text(
+              "\$ ${subscriptionElement.charge}",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
-        Column(
+        subtitle: Column(
           children: [
-            Text(subscriptionElement.renovationCiclye.toString()),
-            Text(subscriptionElement.renovationDate.toString())
+            Row(
+              children: [
+                Text("Period: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(subscriptionElement.renovationCiclye.name),
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  "Next renovation date: ",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(timestampToDatestring(subscriptionElement.renovationDate)),
+              ],
+            ),
           ],
         ),
-        Column(
-          children: [
-            Text(subscriptionElement.userId),
-            Text(subscriptionElement.charge.toString())
-          ],
-        )
-      ],
+        trailing: IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: const Color.fromARGB(255, 205, 61, 61),)),
+      ),
     );
   }
-
 }
