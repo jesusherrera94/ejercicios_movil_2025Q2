@@ -32,7 +32,7 @@ class Subscription {
   String get id => _id;
   String get platformName => _platformName;
   int get renovationDate => _renovationDate;
-  Period get renovationCiclye => _renovationCycle;
+  Period get renovationCycle => _renovationCycle;
   double get charge => _charge;
   String get userId => _userId;
   IconData? get icon =>  _icon ??  Icons.calendar_view_month;

@@ -11,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   
   // temporal final!
+  Period? _selectedFilter;
   final List<Subscription> _subscriptions = [
     Subscription(
       id: '1',
@@ -53,15 +54,39 @@ class _HomeScreenState extends State<HomeScreen> {
       userId: 'user123',
     ),
   ];
-  Period? _selectedFilter;
+
+  List<Subscription> _filteredSubscriptions = [];
+
 
   List<Widget> _renderItems() {
   List<Widget> subscriptionWidget = [];
-  for(final subscription in _subscriptions) {
-    subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
+  if (_selectedFilter == null) {
+    for(final subscription in _subscriptions) {
+      subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
+    }
+    setState(() {
+      _filteredSubscriptions = _subscriptions;
+    });
   }
+  else {
+    _filteredSubscriptions = _subscriptions.where((subscription) {
+      return subscription.renovationCycle == _selectedFilter;
+    }).toList();
+    for(final subscription in _filteredSubscriptions) {
+      subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
+    }
+    setState(() {});
+  }
+  
   return subscriptionWidget;
 }
+
+
+  void _onApplyFilter(Period? period) {
+    setState(() {
+      _selectedFilter = period;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +95,11 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              IconButton(onPressed: () {
+                _onApplyFilter(null);
+              }, icon: const Icon(Icons.cancel)),
               ElevatedButton(onPressed: () {
-                
+                _onApplyFilter(Period.DAILY);
               },
               style: ElevatedButton.styleFrom(
                       backgroundColor: _selectedFilter == Period.DAILY
@@ -82,19 +110,19 @@ class _HomeScreenState extends State<HomeScreen> {
               
               ),
               ElevatedButton(onPressed: () {
-               
+                _onApplyFilter(Period.MONTHLY);
               }, 
               style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedFilter == Period.DAILY
+                      backgroundColor: _selectedFilter == Period.MONTHLY
                           ? Colors.blueAccent
                           : Colors.grey,
                     ), 
               child: const Text("Monthly")),
               ElevatedButton(onPressed: () {
-               
+               _onApplyFilter(Period.YEARLY);
               }, 
               style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedFilter == Period.DAILY
+                      backgroundColor: _selectedFilter == Period.YEARLY
                           ? Colors.blueAccent
                           : Colors.grey,
                     ), 
