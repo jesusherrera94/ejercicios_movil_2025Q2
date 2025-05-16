@@ -8,8 +8,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-
-  void _goToAppController( BuildContext context) {
+  void _goToAppController(BuildContext context) {
     Navigator.pushNamed(context, 'app-controller');
   }
 
@@ -20,24 +19,30 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( title: Text('Login'),),
+      appBar: AppBar(title: Text('Login')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Login'),
-            ElevatedButton(onPressed: () {
-              _goToAppController(context);
-            }, child: Text('Login')),
+            ElevatedButton(
+              onPressed: () {
+                _goToAppController(context);
+              },
+              child: Text('Login'),
+            ),
             GestureDetector(
               onTap: () {
                 _goToRegister(context);
               },
               child: Container(
                 margin: EdgeInsets.all(20),
-                child: Text('Register', style: TextStyle(decoration: TextDecoration.underline),),
+                child: Text(
+                  'Register',
+                  style: TextStyle(decoration: TextDecoration.underline),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

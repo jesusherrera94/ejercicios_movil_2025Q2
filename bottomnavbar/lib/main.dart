@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         "init": (context) => Login(),
         "app-controller": (context) => MyBottomNavigationBar(),
         "register": (context) => Register(),
-        "add-entry": (context) => AddEndry()
+        "add-entry": (context) => AddEndry(),
       },
     );
   }
