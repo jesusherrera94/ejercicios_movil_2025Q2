@@ -10,6 +10,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   
+  Period? _selectedFilter;
   // temporal final!
   final List<Subscription> _subscriptions = [
     Subscription(
@@ -54,20 +55,87 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
+  List<Subscription> _filteredSubscriptions = [];
+
   List<Widget> _renderItems() {
   List<Widget> subscriptionWidget = [];
-  for(final subscription in _subscriptions) {
-    subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
-  }
+
+    if(_selectedFilter == null) {
+      // funciona cuando inicia el app y cuando se restaure el filtro
+      // aka. estado inicial
+        for(final subscription in _subscriptions) {
+         subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
+        }
+      setState(() {
+        _filteredSubscriptions = _subscriptions;
+      });
+    } else {
+      _filteredSubscriptions = _subscriptions.where((subs) {
+        return subs.renovationCycle == _selectedFilter;
+      }).toList();
+
+      for(final subscription in _filteredSubscriptions) {
+        subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
+      }
+      setState(() {});
+    }
   return subscriptionWidget;
+}
+
+void _selectPeriod(Period? newPeriod) {
+  setState(() {
+    _selectedFilter = newPeriod;
+  });
 }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            if (_selectedFilter != null)
+            IconButton(onPressed: () {
+              _selectPeriod(null);
+            }, icon: Icon(Icons.cancel)),
+            ElevatedButton(onPressed: () {
+              if(_selectedFilter == Period.DAILY) {
+                _selectPeriod(null);
+              } else {
+                _selectPeriod(Period.DAILY);
+              }
+            }, 
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _selectedFilter == Period.DAILY ?
+                  Colors.blueAccent : Colors.grey 
+              ),
+            child: const Text("Daily"),
+            ),
+            ElevatedButton(onPressed: () {
+              _selectPeriod(Period.MONTHLY);
+            }, 
+            style: ElevatedButton.styleFrom(
+                backgroundColor: _selectedFilter == Period.MONTHLY ?
+                  Colors.blueAccent : Colors.grey 
+              ),
+            child: const Text("Monthly")),
+            ElevatedButton(onPressed: () {
+              _selectPeriod(Period.YEARLY);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: _selectedFilter == Period.YEARLY ?
+                  Colors.blueAccent : Colors.grey 
+              ),
+             child: const Text("Yearly"))
+          ],
+        ),
+        Expanded(
       child:ListView(
         children: _renderItems(),
       )
+    )
+      ],
     );
   }
 }

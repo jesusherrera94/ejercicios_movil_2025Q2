@@ -31,7 +31,7 @@ class SubscriptionItem extends StatelessWidget {
             Row(
               children: [
                 Text("Period: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(subscriptionElement.renovationCiclye.name),
+                Text(subscriptionElement.renovationCycle.name),
               ],
             ),
             Row(
