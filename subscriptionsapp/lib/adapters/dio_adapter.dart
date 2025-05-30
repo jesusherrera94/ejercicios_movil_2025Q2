@@ -11,4 +11,9 @@ class DioAdapter {
     return response.data;
   }
 
+  Future<dynamic> postRequest(String url, Map<String, dynamic> body) async  {
+    Response<dynamic> response = await _dio.post(url, data: body);
+    return response.data;
+  }
+
 }

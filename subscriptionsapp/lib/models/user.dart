@@ -18,4 +18,42 @@ class User {
     required this.principalInterest,
     this.uid
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'username': username,
+      'fullname': fullname,
+      'email': email,
+      'password': password,
+      'principalInterest': principalInterest,
+      'profilePicture': profilePicture,
+    };
+  }
+
+  String toMapString() {
+    return """{
+                "id": \"$id\",
+                "username": \"$username\",
+                "fullname": \"$fullname\",
+                "email": \"$email\",
+                "principalInterest": \"$principalInterest\",
+                "profilePicture": \"$profilePicture\",
+                "uid": \"$uid\"
+                }""";
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'] ?? '',
+      username: map['username'] ?? '',
+      fullname: map['fullname'] ?? '',
+      email: map['email'] ?? '',
+      password: map['password'] ?? '',
+      principalInterest: map['principalInterest'] ?? '',
+      profilePicture: map['profilePicture'],
+      uid: map['uid'],
+    );
+  }
+
+
 }
