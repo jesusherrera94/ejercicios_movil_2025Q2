@@ -12,18 +12,12 @@ class LocalStorage {
     await _preferencesAsync.setBool('isAuthenticated', loginStatus);
   }
 
-  Future<void> setUserData(String key, String value) async {
+  Future<void> setUserData(String key, String value) async{
     await _preferencesAsync.setString(key, value);
   }
 
   Future<bool> getLoginStatus() async => await _preferencesAsync.getBool('isAuthenticated') ?? false;
-  Future<String> getUserData(String key) async {
-    return await _preferencesAsync.getString(key) ?? '';
-  }
 
-  Future<void> clear() async {
-    await _preferencesAsync.clear();
-  }
-
+  Future<String> getUserData(String key) async => await _preferencesAsync.getString(key) ?? '';
 
 }
