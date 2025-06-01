@@ -29,10 +29,16 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     });
   }
 
+  void _goToAppController(BuildContext context) {
+    Navigator.pushNamed(context, 'add-entry');
+  }
+
   Widget? getFoatingActionButton(int index) {
     if(index == 0) {
       return FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          _goToAppController(context);
+        },
         backgroundColor: Colors.blueAccent, 
         shape: CircleBorder(),
         child: Icon(Icons.add, color: Colors.white,),

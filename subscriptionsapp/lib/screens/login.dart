@@ -4,6 +4,7 @@ import 'dart:convert' as convert;
 import '../adapters/local_storage.dart';
 import '../adapters/dio_adapter.dart';
 import '../adapters/http_adapter.dart';
+import '../widgets/wave_button.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -84,9 +85,14 @@ class _LoginState extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Login'),
-            ElevatedButton(onPressed: () {
-              _goToAppController(context);
-            }, child: Text('Login')),
+            WaveButton(
+              onPressed: () => _goToAppController(context),
+              child: Text('Login',
+              style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white
+            ),)),
             GestureDetector(
               onTap: () {
                 _goToRegister(context);
