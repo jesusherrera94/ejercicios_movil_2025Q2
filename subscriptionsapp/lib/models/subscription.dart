@@ -65,7 +65,7 @@ class Subscription {
     return {
       "platformName": _platformName,
       "renovationDate": _renovationDate,
-      "renovationCycle": _renovationCycle,
+      "renovationCycle": _renovationCycle.name,
       "charge": _charge,
       "userId": _userId,
       "icon": _icon

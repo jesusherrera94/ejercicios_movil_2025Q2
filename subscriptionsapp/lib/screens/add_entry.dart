@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:convert' as convert;
+
 import '../widgets/wave_button.dart';
 import '../models/subscription.dart';
+import '../adapters/db.dart';
+import '../adapters/local_storage.dart';
+import '../models/user.dart';
 
 class AddEndry extends StatefulWidget {
   const AddEndry({super.key});
@@ -12,6 +17,9 @@ class AddEndry extends StatefulWidget {
 class _AddEndryState extends State<AddEndry> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  Db _db = Db();
+  LocalStorage _localStorage = LocalStorage();
+  late User _user;
 
   Subscription _newSubscription = Subscription(
     platformName: '',
@@ -20,13 +28,28 @@ class _AddEndryState extends State<AddEndry> {
     charge: 0.0,
   );
 
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() async {
+    final userString = await _localStorage.getUserData('user');
+    setState(() {
+      _user = User.fromMap(convert.jsonDecode(userString));
+    });
+  }
+
   void _onCreateSubscription() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       setState(() {
         _isLoading = true;
       });
-      print('subscription created!!!!!!!!!!!!!!! ${_newSubscription.toMap()}');
+      _newSubscription.userId = _user.uid!;
+      dynamic response = await _db.saveSubscription(_newSubscription.toMap());
+      print('subscription created!!!!!!!!!!!!!!! ${response}');
       setState(() {
         _isLoading = false;
       });
