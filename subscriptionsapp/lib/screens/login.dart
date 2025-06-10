@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert' as convert;
 
 import '../adapters/local_storage.dart';
 import '../adapters/dio_adapter.dart';
-import '../adapters/http_adapter.dart';
 import '../models/user.dart';
 import '../widgets/wave_button.dart';
 import '../adapters/auth.dart';
@@ -21,16 +19,9 @@ class _LoginState extends State<Login> {
   bool _isLoading = false;
   LocalStorage _localStorage = LocalStorage();
   DioAdapter _dioAdapter = DioAdapter();
-  HttpAdapter _httpAdapter = HttpAdapter();
   String _email = '';
   String _password = '';
-  User _user = User(
-    username: '',
-    fullname: '',
-    email: '',
-    password: '',
-    principalInterest: '',
-  );
+  String _error = '';
 
   @override
   void initState() {
@@ -41,22 +32,6 @@ class _LoginState extends State<Login> {
   void _validateLogin(BuildContext context) async {
     try {
       bool isAuthenticated = await _localStorage.getLoginStatus();
-      dynamic response = await _dioAdapter.getRequest(
-        'https://official-joke-api.appspot.com/random_ten',
-      );
-      dynamic responseHttp = await _httpAdapter.getRequest(
-        'official-joke-api.appspot.com',
-        '/random_ten',
-      );
-      List<dynamic> responseMap = convert.jsonDecode(responseHttp);
-      String dioResponseStr = convert.jsonEncode(response);
-      print('=======>: ${response[0]["setup"]}');
-      print('========>: $responseHttp');
-      print('==========>: ${responseMap[0]}');
-      print(
-        '${response.runtimeType} : ${responseHttp.runtimeType} : ${responseMap.runtimeType} : ${dioResponseStr.runtimeType}',
-      );
-      print('=========> $dioResponseStr');
       setState(() {
         _hasLoaded = true;
       });
@@ -73,16 +48,24 @@ class _LoginState extends State<Login> {
   void _doLogin() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState?.save();
+      setState(() {
+        _error = '';
+      });
       try {
-        dynamic _loginUser = await Auth.signInWithEmailAndPassword(_email, _password);
-       String userUid = _loginUser.user.uid;
-      //   dynamic response = await _dioAdapter.getRequest(
-      //   'https://subscriptions-be.vercel.app/api/users/$userUid',
-      // );
-        print('Email: $userUid');
+        dynamic loginUser = await Auth.signInWithEmailAndPassword(_email, _password);
+       String userUid = loginUser.user.uid;
+        dynamic response = await _dioAdapter.getRequest(
+        'https://subscriptions-be.vercel.app/api/users/$userUid',
+      );
+        User user = User.fromMap(response['user']);
+        await _localStorage.setUserData('user', user.toMapString());
+        _goToAppController(context);
       }
       catch(error) {
         print("Error ocurred trying to login: $error");
+        setState(() {
+          _error = 'Error trying to login, try again!';
+        });
       }
     }
   }
@@ -163,6 +146,10 @@ class _LoginState extends State<Login> {
                         },
                         onSaved: (value) => _password = value!,
                       ),
+                      if (_error.isNotEmpty) ...[
+                        SizedBox(height: 10,),
+                        Text(_error, style: TextStyle(color: Colors.redAccent),)
+                      ],
 
                       const SizedBox(height: 30),
                       WaveButton(
