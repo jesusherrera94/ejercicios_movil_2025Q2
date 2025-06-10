@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "488843236274",
+    "firebase_url": "https://subscriptions-app-9590f-default-rtdb.firebaseio.com",
+    "project_id": "subscriptions-app-9590f",
+    "storage_bucket": "subscriptions-app-9590f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:488843236274:android:b88626861962c5208bcaab",
+        "android_client_info": {
+          "package_name": "com.ccc218.subscriptionsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5O085nRoZfjSDM3HHqltNp0N_UQUj0p4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -58,7 +58,8 @@ class _RegisterState extends State<Register> {
         // Testing the localStorage data
         String userString = await _localStorage.getUserData('user');
         dynamic userMap = convert.jsonDecode(userString);
-        _displaySnackbar(context, 'User registered successfully: ${userMap['username']}');
+        print('====================> $userMap');
+        // _displaySnackbar(context, 'User registered successfully: ${userMap['username']}');
 
       } catch(e) {
         print('An error ocurred trying to create user: $e');

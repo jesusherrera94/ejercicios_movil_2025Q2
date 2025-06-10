@@ -6,6 +6,7 @@ import '../adapters/dio_adapter.dart';
 import '../adapters/http_adapter.dart';
 import '../models/user.dart';
 import '../widgets/wave_button.dart';
+import '../adapters/auth.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -72,7 +73,17 @@ class _LoginState extends State<Login> {
   void _doLogin() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState?.save();
-      print('Email: $_email, password: $_password');
+      try {
+        dynamic _loginUser = await Auth.signInWithEmailAndPassword(_email, _password);
+       String userUid = _loginUser.user.uid;
+      //   dynamic response = await _dioAdapter.getRequest(
+      //   'https://subscriptions-be.vercel.app/api/users/$userUid',
+      // );
+        print('Email: $userUid');
+      }
+      catch(error) {
+        print("Error ocurred trying to login: $error");
+      }
     }
   }
 
@@ -150,7 +161,7 @@ class _LoginState extends State<Login> {
                           }
                           return null;
                         },
-                        onSaved: (value) => _user.password = value!,
+                        onSaved: (value) => _password = value!,
                       ),
 
                       const SizedBox(height: 30),
@@ -163,7 +174,7 @@ class _LoginState extends State<Login> {
                         child:
                             _isLoading
                                 ? CircularProgressIndicator()
-                                : Text("Register"),
+                                : Text("Login"),
                       ),
                       const SizedBox(height: 15),
                       GestureDetector(

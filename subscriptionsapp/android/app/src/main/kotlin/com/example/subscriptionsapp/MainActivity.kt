@@ -1,4 +1,4 @@
-package com.example.subscriptionsapp
+package com.ccc218.subscriptionsapp
 
 import io.flutter.embedding.android.FlutterActivity
 
