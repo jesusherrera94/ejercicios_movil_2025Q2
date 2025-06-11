@@ -6,6 +6,7 @@ import '../models/subscription.dart';
 import '../adapters/db.dart';
 import '../adapters/local_storage.dart';
 import '../models/user.dart';
+import '../state/subscriptions_state.dart';
 
 class AddEndry extends StatefulWidget {
   const AddEndry({super.key});
@@ -49,7 +50,12 @@ class _AddEndryState extends State<AddEndry> {
       });
       _newSubscription.userId = _user.uid!;
       dynamic response = await _db.saveSubscription(_newSubscription.toMap());
-      print('subscription created!!!!!!!!!!!!!!! ${response}');
+      print('subscription created!!!!!!!!!!!!!!! ${response.id}');
+      final newSub = Subscription.fromMap({
+      "id": response.id,
+      ...response.data(),
+    });
+    subscriptionsNotifier.value = [...subscriptionsNotifier.value, newSub];
       setState(() {
         _isLoading = false;
       });

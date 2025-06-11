@@ -1,6 +1,17 @@
-import '../widgets/subscription_item.dart';
+
 import 'package:flutter/material.dart';
+import 'dart:convert' as convert;
+
+import '../widgets/subscription_item.dart';
 import '../models/subscription.dart';
+import '../adapters/db.dart';
+import '../adapters/local_storage.dart';
+import '../models/user.dart';
+import '../state/subscriptions_state.dart';
+
+
+List<Subscription> subscriptionsGlobal = [];
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -11,49 +22,52 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   
   Period? _selectedFilter;
-  // temporal final!
-  final List<Subscription> _subscriptions = [
-    Subscription(
-      id: '1',
-      platformName: 'Netflix',
-      renovationDate: 2148483647, 
-      renovationCycle: Period.MONTHLY,
-      charge: 12.99,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '2',
-      platformName: 'Spotify',
-      renovationDate: 2147483647,
-      renovationCycle: Period.MONTHLY,
-      charge: 9.99,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '3',
-      platformName: 'Hulu',
-      renovationDate: 2147483647,
-      renovationCycle: Period.MONTHLY,
-      charge: 7.99,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '4',
-      platformName: 'Amazon Prime',
-      renovationDate: 2147483647,
-      renovationCycle: Period.YEARLY,
-      charge: 119.00,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '5',
-      platformName: 'YouTube Premium',
-      renovationDate: 2047483635,
-      renovationCycle: Period.MONTHLY,
-      charge: 11.99,
-      userId: 'user123',
-    ),
-  ];
+  bool _isLoading = false;
+  final Db _db = Db();
+  final LocalStorage _localStorage = LocalStorage();
+  late User _user;
+
+   @override
+  void initState() {
+    super.initState();
+    _loadSubscriptions();
+  }
+
+  void _loadSubscriptions() async {
+    setState(() {
+    _isLoading = true;
+  });
+  try {
+    final userString = await _localStorage.getUserData('user');
+    _user = User.fromMap(convert.jsonDecode(userString));
+    final subscriptions = await _db.getSubscriptions(_user.uid!);
+    subscriptionsNotifier.value = subscriptions.map((s) => Subscription.fromMap(s)).toList();
+    setState(() {
+      _filteredSubscriptions = subscriptionsNotifier.value;
+    });
+  } catch (error) {
+    print('Error loading subscriptions: $error');
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+  _listenChanges();
+  } 
+
+  void _listenChanges() {
+    _db.setListenerToOrder(onSubscriptionRecieved: (data) {
+      final sub = Subscription.fromMap(data);
+      final current = List<Subscription>.from(subscriptionsNotifier.value);
+      final idx = current.indexWhere((s) => s.id == sub.id);
+      if (idx != -1) {
+        current[idx] = sub;
+      } else {
+        current.add(sub);
+      }
+      subscriptionsNotifier.value = current;
+    });
+  }
 
   List<Subscription> _filteredSubscriptions = [];
 
@@ -63,14 +77,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if(_selectedFilter == null) {
       // funciona cuando inicia el app y cuando se restaure el filtro
       // aka. estado inicial
-        for(final subscription in _subscriptions) {
+        for(final subscription in subscriptionsGlobal) {
          subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
         }
       setState(() {
-        _filteredSubscriptions = _subscriptions;
+        _filteredSubscriptions = subscriptionsGlobal;
       });
     } else {
-      _filteredSubscriptions = _subscriptions.where((subs) {
+      _filteredSubscriptions = subscriptionsGlobal.where((subs) {
         return subs.renovationCycle == _selectedFilter;
       }).toList();
 
@@ -79,6 +93,18 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       setState(() {});
     }
+
+  if (subscriptionWidget.isEmpty) {
+    subscriptionWidget.add(
+      const Center(
+        child: Text("No subscriptions found", style: TextStyle(
+          fontSize: 18,
+          color: Colors.grey,
+        ),),
+      ),
+    );
+  }
+
   return subscriptionWidget;
 }
 
@@ -90,6 +116,11 @@ void _selectPeriod(Period? newPeriod) {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return Column(
       children: [
         Row(
@@ -131,10 +162,26 @@ void _selectPeriod(Period? newPeriod) {
           ],
         ),
         Expanded(
-      child:ListView(
-        children: _renderItems(),
-      )
-    )
+        child: ValueListenableBuilder<List<Subscription>>(
+          valueListenable: subscriptionsNotifier,
+          builder: (context, subscriptions, _) {
+            final filtered = _selectedFilter == null
+              ? subscriptions
+              : subscriptions.where((s) => s.renovationCycle == _selectedFilter).toList();
+            if (filtered.isEmpty) {
+              return const Center(
+                child: Text("No subscriptions found", style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey,
+                )),
+              );
+            }
+            return ListView(
+              children: filtered.map((s) => SubscriptionItem(subscriptionElement: s)).toList(),
+            );
+          },
+        ),
+      ),
       ],
     );
   }

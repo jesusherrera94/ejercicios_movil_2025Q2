@@ -21,7 +21,7 @@ class Db {
         if (doc.type == DocumentChangeType.modified) {
           print('subscription received: ${doc.doc.id}');
           final subscription = {
-            'subscriptionId': doc.doc.id,
+            'id': doc.doc.id,
             ...doc.doc.data() as Map<String, dynamic>,
           };
           onSubscriptionRecieved(subscription);
@@ -34,7 +34,7 @@ class Db {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await _db.collection('subscriptions').where('userId', isEqualTo: userId).get();
       List<Map<String, dynamic>> orders = querySnapshot.docs.map((doc) => {
-        'subscriptionId': doc.id,
+        'id': doc.id,
         ...doc.data(),
       }).toList();
       print('subscriptions received: $orders');
@@ -44,4 +44,14 @@ class Db {
       return [];
     }
   }
+
+  Future<void> deleteSubscription(String subscriptionId) async {
+  try {
+    await _db.collection('subscriptions').doc(subscriptionId).delete();
+    print('Subscription deleted: $subscriptionId');
+  } catch (e) {
+    print('Error deleting subscription: $e');
+  }
+}
+
 }
