@@ -6,7 +6,7 @@ import '../models/subscription.dart';
 import '../adapters/db.dart';
 import '../adapters/local_storage.dart';
 import '../models/user.dart';
-import '../state/subscription_state.dart';
+import '../state/subscriptions_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,11 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final subscriptions = await _db.getSubscriptions(_user.uid!);
 
-      subscriptionNotifier.value =
+      subscriptionsNotifier.value =
           subscriptions.map((s) => Subscription.fromMap(s)).toList();
 
       setState(() {
-        _filteredSubscriptions = subscriptionNotifier.value;
+        _filteredSubscriptions = subscriptionsNotifier.value;
       });
     } catch (error) {
       print('Error loading subscriptions: $error');
@@ -60,14 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _db.setListenerToSubscription(
       onSubscriptionRecieved: (data) {
         final sub = Subscription.fromMap(data);
-        final currentList = List<Subscription>.from(subscriptionNotifier.value);
+        final currentList = List<Subscription>.from(subscriptionsNotifier.value);
         final idx = currentList.indexWhere((s) => s.id == sub.id);
         if (idx != -1) {
           currentList[idx] = sub;
         } else {
           currentList.add(sub);
         }
-        subscriptionNotifier.value = currentList;
+        subscriptionsNotifier.value = currentList;
       },
     );
   }
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         Expanded(
           child: ValueListenableBuilder<List<Subscription>>(
-            valueListenable: subscriptionNotifier,
+            valueListenable: subscriptionsNotifier,
             builder: (context, subscriptions, _) {
               final filtered =
                   _selectedFilter == null

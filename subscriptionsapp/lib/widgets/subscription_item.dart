@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/subscription.dart';
 import '../utils/time_utils.dart';
 import '../adapters/db.dart';
-import '../state/subscription_state.dart';
+import '../state/subscriptions_state.dart';
 
 class SubscriptionItem extends StatelessWidget {
   final Subscription subscriptionElement;
@@ -35,9 +35,9 @@ class SubscriptionItem extends StatelessWidget {
     if (confirm != true) return;
     await db.deleteSubscription(subscriptionElement.id);
 
-    final updatedList = List<Subscription>.from(subscriptionNotifier.value)
+    final updatedList = List<Subscription>.from(subscriptionsNotifier.value)
       ..removeWhere((s) => s.id == subscriptionElement.id);
-    subscriptionNotifier.value = updatedList;
+    subscriptionsNotifier.value = updatedList;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Subscription Deleted!')));
