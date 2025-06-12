@@ -7,6 +7,7 @@ import '../adapters/db.dart';
 import '../adapters/local_storage.dart';
 import '../models/user.dart';
 import '../state/subscriptions_state.dart';
+import '../adapters/notifications.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final Db _db = Db();
   final LocalStorage _localStorage = LocalStorage();
   late User _user;
-  List<Subscription> _filteredSubscriptions = [];
+  final Notifications _notifications = Notifications();
 
   @override
   void initState() {
@@ -42,10 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       subscriptionsNotifier.value =
           subscriptions.map((s) => Subscription.fromMap(s)).toList();
-
-      setState(() {
-        _filteredSubscriptions = subscriptionsNotifier.value;
-      });
     } catch (error) {
       print('Error loading subscriptions: $error');
     } finally {
@@ -64,6 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
         final idx = currentList.indexWhere((s) => s.id == sub.id);
         if (idx != -1) {
           currentList[idx] = sub;
+          _notifications.showNotification(
+            title: 'Subscriptions has changed',
+            body: 'Subscription ${sub.platformName} has changed');
         } else {
           currentList.add(sub);
         }
