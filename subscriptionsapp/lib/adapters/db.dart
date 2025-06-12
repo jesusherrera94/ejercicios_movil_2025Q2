@@ -15,7 +15,7 @@ class Db {
     }
   }
 
-  void setListenerToOrder({required Function(Map<String, dynamic>) onSubscriptionRecieved}) {
+  void setListenerToSubscription({required Function(Map<String, dynamic>) onSubscriptionRecieved}) {
     _db.collection('subscriptions').snapshots().listen((snapshot) {
       for (var doc in snapshot.docChanges) {
         if (doc.type == DocumentChangeType.modified) {
@@ -33,12 +33,12 @@ class Db {
   Future<List<Map<String, dynamic>>> getSubscriptions(String userId) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await _db.collection('subscriptions').where('userId', isEqualTo: userId).get();
-      List<Map<String, dynamic>> orders = querySnapshot.docs.map((doc) => {
+      List<Map<String, dynamic>> subscriptions = querySnapshot.docs.map((doc) => {
         'id': doc.id,
         ...doc.data(),
       }).toList();
-      print('subscriptions received: $orders');
-      return orders;
+      print('subscriptions received: $subscriptions');
+      return subscriptions;
     } catch (e) {
       print('error ocurred calling Firebase!: $e');
       return [];
@@ -46,12 +46,12 @@ class Db {
   }
 
   Future<void> deleteSubscription(String subscriptionId) async {
-  try {
-    await _db.collection('subscriptions').doc(subscriptionId).delete();
-    print('Subscription deleted: $subscriptionId');
-  } catch (e) {
-    print('Error deleting subscription: $e');
+    try{
+      await _db.collection('subscriptions').doc(subscriptionId).delete();
+      print('Subscription deleted: $subscriptionId');
+    } catch(e) {
+      print('Error deleteing subscription: $e');
+    }
   }
-}
 
 }
