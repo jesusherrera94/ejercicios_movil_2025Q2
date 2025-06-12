@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 enum Period { NONE, DAILY, WEEKLY, MONTHLY, YEARLY }
@@ -70,6 +68,20 @@ class Subscription {
       "userId": _userId,
       "icon": _icon
     };
+  }
+
+  factory Subscription.fromMap(Map<String, dynamic> map) {
+    return Subscription(
+      id: map['id'] as String?,
+      platformName: map['platformName'] as String,
+      renovationDate: map['renovationDate'] as int,
+      renovationCycle: Period.values.firstWhere(
+        (e) => e.name == map['renovationCycle'],
+        orElse: () => Period.NONE,
+      ),
+      charge: (map['charge'] as num).toDouble(),
+      userId: map['userId'] as String?,
+    );
   }
   
 }

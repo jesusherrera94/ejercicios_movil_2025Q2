@@ -1,6 +1,13 @@
-import '../widgets/subscription_item.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert' as convert;
+
+import '../widgets/subscription_item.dart';
 import '../models/subscription.dart';
+import '../adapters/db.dart';
+import '../adapters/local_storage.dart';
+import '../models/user.dart';
+import '../state/subscription_state.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -9,132 +16,155 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
   Period? _selectedFilter;
-  // temporal final!
-  final List<Subscription> _subscriptions = [
-    Subscription(
-      id: '1',
-      platformName: 'Netflix',
-      renovationDate: 2148483647, 
-      renovationCycle: Period.MONTHLY,
-      charge: 12.99,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '2',
-      platformName: 'Spotify',
-      renovationDate: 2147483647,
-      renovationCycle: Period.MONTHLY,
-      charge: 9.99,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '3',
-      platformName: 'Hulu',
-      renovationDate: 2147483647,
-      renovationCycle: Period.MONTHLY,
-      charge: 7.99,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '4',
-      platformName: 'Amazon Prime',
-      renovationDate: 2147483647,
-      renovationCycle: Period.YEARLY,
-      charge: 119.00,
-      userId: 'user123',
-    ),
-    Subscription(
-      id: '5',
-      platformName: 'YouTube Premium',
-      renovationDate: 2047483635,
-      renovationCycle: Period.MONTHLY,
-      charge: 11.99,
-      userId: 'user123',
-    ),
-  ];
-
+  bool _isLoading = false;
+  final Db _db = Db();
+  final LocalStorage _localStorage = LocalStorage();
+  late User _user;
   List<Subscription> _filteredSubscriptions = [];
 
-  List<Widget> _renderItems() {
-  List<Widget> subscriptionWidget = [];
+  @override
+  void initState() {
+    super.initState();
+    _loadSubscriptions();
+  }
 
-    if(_selectedFilter == null) {
-      // funciona cuando inicia el app y cuando se restaure el filtro
-      // aka. estado inicial
-        for(final subscription in _subscriptions) {
-         subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
-        }
+  void _loadSubscriptions() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final userString = await _localStorage.getUserData('user');
+      _user = User.fromMap(convert.jsonDecode(userString));
+
+      final subscriptions = await _db.getSubscriptions(_user.uid!);
+
+      subscriptionNotifier.value =
+          subscriptions.map((s) => Subscription.fromMap(s)).toList();
+
       setState(() {
-        _filteredSubscriptions = _subscriptions;
+        _filteredSubscriptions = subscriptionNotifier.value;
       });
-    } else {
-      _filteredSubscriptions = _subscriptions.where((subs) {
-        return subs.renovationCycle == _selectedFilter;
-      }).toList();
-
-      for(final subscription in _filteredSubscriptions) {
-        subscriptionWidget.add(SubscriptionItem(subscriptionElement: subscription,));
-      }
-      setState(() {});
+    } catch (error) {
+      print('Error loading subscriptions: $error');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-  return subscriptionWidget;
-}
+    _listenChanges();
+  }
 
-void _selectPeriod(Period? newPeriod) {
-  setState(() {
-    _selectedFilter = newPeriod;
-  });
-}
+  void _listenChanges() {
+    _db.setListenerToSubscription(
+      onSubscriptionRecieved: (data) {
+        final sub = Subscription.fromMap(data);
+        final currentList = List<Subscription>.from(subscriptionNotifier.value);
+        final idx = currentList.indexWhere((s) => s.id == sub.id);
+        if (idx != -1) {
+          currentList[idx] = sub;
+        } else {
+          currentList.add(sub);
+        }
+        subscriptionNotifier.value = currentList;
+      },
+    );
+  }
+
+  void _selectPeriod(Period? newPeriod) {
+    setState(() {
+      _selectedFilter = newPeriod;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             if (_selectedFilter != null)
-            IconButton(onPressed: () {
-              _selectPeriod(null);
-            }, icon: Icon(Icons.cancel)),
-            ElevatedButton(onPressed: () {
-              if(_selectedFilter == Period.DAILY) {
-                _selectPeriod(null);
-              } else {
-                _selectPeriod(Period.DAILY);
-              }
-            }, 
+              IconButton(
+                onPressed: () {
+                  _selectPeriod(null);
+                },
+                icon: Icon(Icons.cancel),
+              ),
+            ElevatedButton(
+              onPressed: () {
+                if (_selectedFilter == Period.DAILY) {
+                  _selectPeriod(null);
+                } else {
+                  _selectPeriod(Period.DAILY);
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _selectedFilter == Period.DAILY ?
-                  Colors.blueAccent : Colors.grey 
+                backgroundColor:
+                    _selectedFilter == Period.DAILY
+                        ? Colors.blueAccent
+                        : Colors.grey,
               ),
-            child: const Text("Daily"),
+              child: const Text("Daily"),
             ),
-            ElevatedButton(onPressed: () {
-              _selectPeriod(Period.MONTHLY);
-            }, 
-            style: ElevatedButton.styleFrom(
-                backgroundColor: _selectedFilter == Period.MONTHLY ?
-                  Colors.blueAccent : Colors.grey 
+            ElevatedButton(
+              onPressed: () {
+                _selectPeriod(Period.MONTHLY);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    _selectedFilter == Period.MONTHLY
+                        ? Colors.blueAccent
+                        : Colors.grey,
               ),
-            child: const Text("Monthly")),
-            ElevatedButton(onPressed: () {
-              _selectPeriod(Period.YEARLY);
-            },
-            style: ElevatedButton.styleFrom(
-                backgroundColor: _selectedFilter == Period.YEARLY ?
-                  Colors.blueAccent : Colors.grey 
+              child: const Text("Monthly"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _selectPeriod(Period.YEARLY);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    _selectedFilter == Period.YEARLY
+                        ? Colors.blueAccent
+                        : Colors.grey,
               ),
-             child: const Text("Yearly"))
+              child: const Text("Yearly"),
+            ),
           ],
         ),
         Expanded(
-      child:ListView(
-        children: _renderItems(),
-      )
-    )
+          child: ValueListenableBuilder<List<Subscription>>(
+            valueListenable: subscriptionNotifier,
+            builder: (context, subscriptions, _) {
+              final filtered =
+                  _selectedFilter == null
+                      ? subscriptions
+                      : subscriptions
+                          .where((s) => s.renovationCycle == _selectedFilter)
+                          .toList();
+              if (filtered.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No subscription found',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                );
+              }
+              return ListView(
+                children:
+                    filtered
+                        .map((s) => SubscriptionItem(subscriptionElement: s))
+                        .toList(),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
