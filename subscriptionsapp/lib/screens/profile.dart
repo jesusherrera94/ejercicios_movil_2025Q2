@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:convert' as convert;
+
+
 import '../models/user.dart';
+import '../adapters/local_storage.dart';
+import '../adapters/auth.dart';
+import '../widgets/wave_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,6 +18,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  final LocalStorage _localStorage = LocalStorage();
+  late  User _user;
 
   @override
   void initState() {
@@ -22,6 +30,18 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
+    _loadUser();
+  }
+
+  void _loadUser() async {
+    try {
+      final userString = await _localStorage.getUserData('user');
+    setState(() {
+      _user = User.fromMap(convert.jsonDecode(userString));
+    });
+    } catch (e) {
+      print('Error loading user $e');
+    }
   }
 
   @override
@@ -30,19 +50,18 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
-  final User _user = User(
-    username: 'usuario_demo',
-    fullname: 'Usuario Demo',
-    email: 'demo@example.com',
-    password: '',
-    principalInterest: 'Desarrollo Móvil',
-    profilePicture: 'https://via.placeholder.com/150',
-  );
 
   void _editProfile() {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Función de edición en desarrollo')));
+  }
+
+  void _logout(BuildContext context) async {
+    await _localStorage.clearUserData();
+    await Auth.signOut();
+    Navigator.pushReplacementNamed(context, 'init');
+    
   }
 
   @override
@@ -182,6 +201,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                               _user.principalInterest,
                               Color(0xFF626D80),
                               Icons.interests,
+                            ),
+                            SizedBox(height: 20),
+                            WaveButton(
+                            onPressed: () => _logout(context),
+                            child: Text(
+                              'Logout',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                             SizedBox(height: 20),
                           ],
